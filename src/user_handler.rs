@@ -1,5 +1,6 @@
 use std::io::{Read, Write};
 use std::net::{SocketAddr, TcpStream};
+use bcrypt::{DEFAULT_COST};
 
 #[derive(Debug)]
 pub struct Session {
@@ -71,11 +72,12 @@ pub fn login(stream: &mut TcpStream) -> Option<Session> {
                 match char_buf[0] {
                     0xFF => (), 0xFC => (), 0xFD => (), 0x01 => (), 0x0A => (),
                     0x0D => {
-                        let password = String::from(String::from_utf8_lossy(buf.as_slice()).trim());
+                        let mut password = String::from(String::from_utf8_lossy(buf.as_slice()).trim());
                         if password.len() == 0 {
                             stream.write(b"\r\nYou must enter a password.\r\n").unwrap();
                             return None;
                         }
+                        password = bcrypt::hash(password, DEFAULT_COST).unwrap();
                         session.account.password = password;
                         break;
                     },
