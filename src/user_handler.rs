@@ -1,6 +1,8 @@
 use std::io::{Read, Write};
 use std::net::{SocketAddr, TcpStream};
+
 use bcrypt::{DEFAULT_COST};
+use rand::{thread_rng, Rng};
 
 #[derive(Debug)]
 pub struct Session {
@@ -77,7 +79,9 @@ pub fn login(stream: &mut TcpStream) -> Option<Session> {
                             stream.write(b"\r\nYou must enter a password.\r\n").unwrap();
                             return None;
                         }
-                        password = bcrypt::hash(password, DEFAULT_COST).unwrap();
+                        let mut salt = [0u8; 64];
+                        thread_rng().fill(&mut salt[..]);
+                        password = bcrypt::hash_with_salt(password, DEFAULT_COST, &salt).unwrap().to_string();
                         session.account.password = password;
                         break;
                     },
