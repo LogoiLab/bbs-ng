@@ -79,7 +79,7 @@ pub fn login(stream: &mut TcpStream) -> Option<Session> {
                             stream.write(b"\r\nYou must enter a password.\r\n").unwrap();
                             return None;
                         }
-                        let mut salt = [0u8; 64];
+                        let mut salt = [0u8; 16];
                         thread_rng().fill(&mut salt[..]);
                         password = bcrypt::hash_with_salt(password, DEFAULT_COST, &salt).unwrap().to_string();
                         session.account.password = password;
