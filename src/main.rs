@@ -1,3 +1,4 @@
+pub mod board_handler;
 pub mod connection_handler;
 pub mod constants;
 pub mod menu_handler;
